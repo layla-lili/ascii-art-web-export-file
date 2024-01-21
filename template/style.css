@@ -16,7 +16,6 @@ textarea {
     height: 100px;
     padding: 10px;
     margin-bottom: 10px;
-    flex: ;
     border: 1px solid #ccc;
     border-radius: 4px;
     resize: none;
@@ -39,6 +38,20 @@ input.submit:hover {
 input.submit:active {
     background: #4CAF50;
     color: white;
+}
+
+button {
+    color: #ffffff;
+    margin: 10px;
+    padding: 6px;
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 4px;
+}
+
+button:hover {
+    color: #333;
+    background-color: #a2e8a4;
 }
 
 .caption {
