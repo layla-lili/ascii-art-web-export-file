@@ -6,7 +6,6 @@ import (
 	"html/template"
 	"net/http"
 	"os"
-	"strconv"
 	"strings"
 )
 
@@ -14,7 +13,7 @@ type PageData struct {
 	Text []string
 }
 
-var textInASCII []string
+var downloadData []string
 
 func main() {
 	fmt.Println("CTRL + CLICK TO VIEW THE PROJECT --> http://localhost:8080/")
@@ -39,7 +38,8 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	textInASCII = serveIndex(text, fileName)
+	textInASCII := serveIndex(text, fileName)
+	downloadData = textInASCII
 	pageData := PageData{
 		Text: textInASCII,
 	}
@@ -65,18 +65,14 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func DownloadHandler(w http.ResponseWriter, r *http.Request) {
-	contentLength := 0
-	// Write the ASCII text to the response writer
-	for _, line := range textInASCII {
-		_, _ = fmt.Fprintln(w, line)
-		contentLength += len(line) + 2
+	fmt.Println(downloadData)
+	for _, line := range downloadData {
+		fmt.Fprintln(w, line)
 	}
-
-	cl := strconv.Itoa(contentLength)
 	// Set the Content-Disposition header to trigger the download
 	w.Header().Set("Content-Disposition", "attachment; filename=ascii_output.txt")
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	w.Header().Set("Content-Length", cl)
+	// w.Header().Set("Content-Length", cl)
 
 }
 

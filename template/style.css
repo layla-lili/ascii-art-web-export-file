@@ -43,6 +43,7 @@ input.submit:active {
 button {
     color: #ffffff;
     margin: 10px;
+    margin-bottom: 60px;
     padding: 6px;
     background-color: #4CAF50;
     border: none;
