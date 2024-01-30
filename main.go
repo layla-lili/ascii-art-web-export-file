@@ -6,7 +6,6 @@ import (
 	"html/template"
 	"net/http"
 	"os"
-	"strconv"
 	"strings"
 )
 
@@ -66,20 +65,26 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func DownloadHandler(w http.ResponseWriter, r *http.Request) {
-	contentLength := 0
+	// contentLength := 0
 
-	for _, line := range downloadData {
-		fmt.Fprintln(w, line)
-		contentLength += len(line) + 2
+	// for _, line := range downloadData {
+	// 	fmt.Fprintln(w, line)
+	// 	contentLength += len(line) + 2
+	// }
+
+	// Join all the lines from downloadData into a single string
+	fileContent := strings.Join(downloadData, "\n")
+
+	// Write the entire content to the response
+	_, err := w.Write([]byte(fileContent))
+	if err != nil {
+		http.Error(w, "Unable to write response", http.StatusInternalServerError)
+		return
 	}
 
 	w.Header().Set("Content-Disposition", "attachment; filename=ascii_output.txt")
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	w.Header().Set("Content-Length", strconv.Itoa(contentLength))
-
-	if flusher, ok := w.(http.Flusher); ok {
-		flusher.Flush()
-	}
+	// w.Header().Set("Content-Length", strconv.Itoa(contentLength))
 
 }
 
