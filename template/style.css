@@ -55,6 +55,12 @@ button:hover {
     background-color: #a2e8a4;
 }
 
+button:active {
+    background-color: #4CAF50;
+    color: #ffffff;
+    transform: translateY(4px);
+}
+
 .caption {
     font-size: 0.8em;
     font-style: italic;
