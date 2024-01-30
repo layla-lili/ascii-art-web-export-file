@@ -25,6 +25,8 @@ func main() {
 func Handler(w http.ResponseWriter, r *http.Request) {
 	text := r.FormValue("thetext")
 	fileName := r.FormValue("chose")
+	downloadData = nil
+
 	_, error := os.Stat(fileName + ".txt")
 	indexTemplate, _ := template.ParseFiles("template/index.html")
 
