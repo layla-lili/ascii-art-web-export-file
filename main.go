@@ -65,13 +65,15 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func DownloadHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Disposition", "attachment; filename=ascii_output.txt")
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+
 	fmt.Println(downloadData)
 	for _, line := range downloadData {
 		fmt.Fprintln(w, line)
 	}
 	// Set the Content-Disposition header to trigger the download
-	w.Header().Set("Content-Disposition", "attachment; filename=ascii_output.txt")
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+
 	// w.Header().Set("Content-Length", cl)
 
 }
