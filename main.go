@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -65,16 +66,20 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func DownloadHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Disposition", "attachment; filename=ascii_output.txt")
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	contentLength := 0
 
-	fmt.Println(downloadData)
 	for _, line := range downloadData {
 		fmt.Fprintln(w, line)
+		contentLength += len(line) + 2
 	}
-	// Set the Content-Disposition header to trigger the download
 
-	// w.Header().Set("Content-Length", cl)
+	w.Header().Set("Content-Disposition", "attachment; filename=ascii_output.txt")
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.Header().Set("Content-Length", strconv.Itoa(contentLength))
+
+	if flusher, ok := w.(http.Flusher); ok {
+		flusher.Flush()
+	}
 
 }
 
