@@ -39,7 +39,7 @@
         </div>
 
         <div id="ExportButton">
-            <a href="/download" download="ascii_output.txt">
+            <a href="/download?data={{ range .Text }}{{.}}{{ end }}" download="ascii_output.txt">
                 <button>Download ASCII Art</button>
             </a>
         </div>

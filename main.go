@@ -13,8 +13,6 @@ type PageData struct {
 	Text []string
 }
 
-var downloadData []string
-
 func main() {
 	fmt.Println("CTRL + CLICK TO VIEW THE PROJECT --> http://localhost:8080/")
 	http.HandleFunc("/", Handler)
@@ -25,7 +23,6 @@ func main() {
 func Handler(w http.ResponseWriter, r *http.Request) {
 	text := r.FormValue("thetext")
 	fileName := r.FormValue("chose")
-	downloadData = nil
 
 	_, error := os.Stat(fileName + ".txt")
 	indexTemplate, _ := template.ParseFiles("template/index.html")
@@ -41,7 +38,6 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	textInASCII := serveIndex(text, fileName)
-	downloadData = textInASCII
 	pageData := PageData{
 		Text: textInASCII,
 	}
@@ -75,17 +71,21 @@ func DownloadHandler(w http.ResponseWriter, r *http.Request) {
 	// }
 
 	// Join all the lines from downloadData into a single string
-	fileContent := strings.Join(downloadData, "\n")
+	// fileContent := strings.Join(downloadData, "\n")
 
-	// Write the entire content to the response
-	_, err := w.Write([]byte(fileContent))
-	if err != nil {
-		http.Error(w, "Unable to write response", http.StatusInternalServerError)
-		return
-	}
+	dataParam := r.URL.Query().Get("data")
 
 	w.Header().Set("Content-Disposition", "attachment; filename=ascii_output.txt")
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+
+	// Write the entire content to the response
+	_, err := w.Write([]byte(dataParam))
+	if err != nil {
+		// Handle error
+		http.Error(w, "Failed to write response", http.StatusInternalServerError)
+		return
+	}
+
 	// w.Header().Set("Content-Length", strconv.Itoa(contentLength))
 
 }
