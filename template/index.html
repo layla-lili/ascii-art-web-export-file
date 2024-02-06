@@ -28,6 +28,13 @@
                     <option value="thinkertoy">Thinkertoy</option>
                 </select>
                 <br><br>
+                <label for="exportFormat">Export Format:</label>
+                <select name="exportFormat" id="exportFormat">
+                    <option value="txt">Plain Text (.txt)</option>
+                    <option value="csv">CSV (.csv)</option>
+                    <option value="json">JSON (.json)</option>
+                </select>
+                <br><br>
                 <input id="buttons" type="submit" value="Submit" class="submit">
             </form>
         </div>
@@ -39,7 +46,7 @@
         </div>
 
         <div id="ExportButton">
-            <a href="/download?data={{ range .Text }}{{.}}{{ end }}" download="ascii_output.txt">
+            <a href="/download?data={{ range .Text }}{{.}}{{ end }}&format={{ .ExportFormat }}" download="ascii_output.{{ .ExportFormat }}">
                 <button>Download ASCII Art</button>
             </a>
         </div>

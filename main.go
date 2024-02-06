@@ -2,16 +2,17 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"net/http"
 	"os"
-	"strconv"
 	"strings"
 )
 
 type PageData struct {
-	Text []string
+	Text         []string
+	ExportFormat string
 }
 
 func main() {
@@ -24,6 +25,7 @@ func main() {
 func Handler(w http.ResponseWriter, r *http.Request) {
 	text := r.FormValue("thetext")
 	fileName := r.FormValue("chose")
+	exportFormat := r.FormValue("exportFormat")
 
 	_, error := os.Stat(fileName + ".txt")
 	indexTemplate, _ := template.ParseFiles("template/index.html")
@@ -40,7 +42,8 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	textInASCII := serveIndex(text, fileName)
 	pageData := PageData{
-		Text: textInASCII,
+		Text:         textInASCII,
+		ExportFormat: exportFormat,
 	}
 
 	if r.URL.Path == "/style.css" {
@@ -65,16 +68,36 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 func DownloadHandler(w http.ResponseWriter, r *http.Request) {
 	dataParam := r.URL.Query().Get("data")
-	contentLength := len(dataParam)
+	exportFormat := r.URL.Query().Get("format")
 
-	w.Header().Set("Content-Disposition", "attachment; filename=ascii_output.txt")
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	w.Header().Set("Content-Length", strconv.Itoa(contentLength))
+	var contentType string
+	var fileExtension string
 
-	// Write the entire content to the response
-	_, err := w.Write([]byte(dataParam))
+	switch exportFormat {
+	case "csv":
+		contentType = "text/csv"
+		fileExtension = "csv"
+	case "json":
+		contentType = "application/json"
+		fileExtension = "json"
+	default:
+		contentType = "text/plain; charset=utf-8"
+		fileExtension = "txt"
+	}
+
+	w.Header().Set("Content-Disposition", "attachment; filename=ascii_output."+fileExtension)
+	w.Header().Set("Content-Type", contentType)
+
+	// Convert ASCII art to JSON format
+	jsonData, err := json.Marshal(dataParam)
 	if err != nil {
-		// Handle error
+		http.Error(w, "Failed to convert ASCII art to JSON", http.StatusInternalServerError)
+		return
+	}
+
+	// Write the JSON data to the response
+	_, err = w.Write(jsonData)
+	if err != nil {
 		http.Error(w, "Failed to write response", http.StatusInternalServerError)
 		return
 	}
