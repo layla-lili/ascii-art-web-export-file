@@ -2,18 +2,19 @@ package main
 
 import (
 	"bufio"
-	"encoding/json"
 	"fmt"
 	"html/template"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 )
 
 type PageData struct {
-	Text         []string
-	ExportFormat string
+	Text []string
 }
+
+var exportFormat string
 
 func main() {
 	fmt.Println("CTRL + CLICK TO VIEW THE PROJECT --> http://localhost:8080/")
@@ -25,7 +26,7 @@ func main() {
 func Handler(w http.ResponseWriter, r *http.Request) {
 	text := r.FormValue("thetext")
 	fileName := r.FormValue("chose")
-	exportFormat := r.FormValue("exportFormat")
+	exportFormat = r.FormValue("exportFormat")
 
 	_, error := os.Stat(fileName + ".txt")
 	indexTemplate, _ := template.ParseFiles("template/index.html")
@@ -42,8 +43,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	textInASCII := serveIndex(text, fileName)
 	pageData := PageData{
-		Text:         textInASCII,
-		ExportFormat: exportFormat,
+		Text: textInASCII,
 	}
 
 	if r.URL.Path == "/style.css" {
@@ -68,7 +68,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 func DownloadHandler(w http.ResponseWriter, r *http.Request) {
 	dataParam := r.URL.Query().Get("data")
-	exportFormat := r.URL.Query().Get("format")
+	contentLength := len(dataParam)
 
 	var contentType string
 	var fileExtension string
@@ -87,16 +87,10 @@ func DownloadHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Disposition", "attachment; filename=ascii_output."+fileExtension)
 	w.Header().Set("Content-Type", contentType)
-
-	// Convert ASCII art to JSON format
-	jsonData, err := json.Marshal(dataParam)
-	if err != nil {
-		http.Error(w, "Failed to convert ASCII art to JSON", http.StatusInternalServerError)
-		return
-	}
+	w.Header().Set("Content-Length", strconv.Itoa(contentLength))
 
 	// Write the JSON data to the response
-	_, err = w.Write(jsonData)
+	_, err := w.Write([]byte(dataParam))
 	if err != nil {
 		http.Error(w, "Failed to write response", http.StatusInternalServerError)
 		return
