@@ -11,10 +11,9 @@ import (
 )
 
 type PageData struct {
-	Text []string
+	Text         []string
+	ExportFormat string
 }
-
-var exportFormat string
 
 func main() {
 	fmt.Println("CTRL + CLICK TO VIEW THE PROJECT --> http://localhost:8080/")
@@ -26,7 +25,7 @@ func main() {
 func Handler(w http.ResponseWriter, r *http.Request) {
 	text := r.FormValue("thetext")
 	fileName := r.FormValue("chose")
-	exportFormat = r.FormValue("exportFormat")
+	exportFormat := r.FormValue("exportFormat")
 
 	_, error := os.Stat(fileName + ".txt")
 	indexTemplate, _ := template.ParseFiles("template/index.html")
@@ -43,7 +42,8 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	textInASCII := serveIndex(text, fileName)
 	pageData := PageData{
-		Text: textInASCII,
+		Text:         textInASCII,
+		ExportFormat: exportFormat,
 	}
 
 	if r.URL.Path == "/style.css" {
@@ -68,6 +68,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 func DownloadHandler(w http.ResponseWriter, r *http.Request) {
 	dataParam := r.URL.Query().Get("data")
+	exportFormat := r.URL.Query().Get("exportFormat")
 	contentLength := len(dataParam)
 
 	var contentType string
